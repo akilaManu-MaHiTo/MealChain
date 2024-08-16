@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme for Day Mode -->
+    <style name="Base.Theme.MealChain" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Customize your light theme here -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
+    </style>
+
+    <style name="Theme.MealChain" parent="Base.Theme.MealChain" />
+
+</resources>
