@@ -65,6 +65,8 @@
     <string name="Psteps">10000 steps</string>
     <string name="Pmins">30 min/Day</string>
     <string name="Pact">12 Times/Day</string>
-
+    <string name="Login">If you already have an Account.</string>
+    <string name="LoginButton">LogIn</string>
+    <string name="Sign">Sign Up</string>
 
 </resources>

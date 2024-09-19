@@ -5,4 +5,5 @@
     <color name="darkpink">#922E69</color>
     <color name="SecondaryPink">#2C0E20</color>
     <color name="nofill">#00000000</color>
+    <color name="bluefill">#FF2155F3</color>
 </resources>
