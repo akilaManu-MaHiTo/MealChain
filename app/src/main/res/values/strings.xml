@@ -25,7 +25,7 @@
     <string name="ml150">150 ml</string>
     <string name="ml175">175 ml</string>
     <string name="ml200">200 ml</string>
-    <string name="L1">1 L</string>
+    <string name="L1">1000 ml</string>
     <string name="Watch">Apple Watch Series 7</string>
     <string name="Connected">Connected</string>
     <string name="Consume">Consume</string>
@@ -68,5 +68,14 @@
     <string name="Login">If you already have an Account.</string>
     <string name="LoginButton">LogIn</string>
     <string name="Sign">Sign Up</string>
+
+    <string-array name="dropdown_items">
+        <item>1 L</item>
+        <item>2 L</item>
+        <item>3 L</item>
+        <item>4 L</item>
+        <item>5 L</item>
+        <item>6 L</item>
+    </string-array>
 
 </resources>

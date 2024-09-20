@@ -57,11 +57,17 @@
             android:name=".Profile"
             android:exported="true" />
 
-
         <activity
             android:name=".SignUp"
             android:exported="true" />
 
+        <!-- Declare the WaterLevelCheckReceiver -->
+        <receiver
+            android:name=".WaterLevelReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
