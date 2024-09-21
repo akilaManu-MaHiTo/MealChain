@@ -16,14 +16,13 @@ class WaterLevelReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("WaterLevelReceiver", "Checking water levels...")
 
-        // Get saved water level and total water level from SharedPreferences
+
         val waterPreferences = context.getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
         val totalPreferences = context.getSharedPreferences("TotalPreferences", Context.MODE_PRIVATE)
 
         val savedLevel = waterPreferences.getLong("waterLevel", -1L)
         val totalWaterLevel = totalPreferences.getLong("totalWaterLevel", 0L)
 
-        // Compare total water level with saved water level (notify only if water level is low)
         if (savedLevel != -1L && totalWaterLevel < savedLevel) {
             val difference = savedLevel - totalWaterLevel // Calculate the difference
             Log.d("WaterLevelReceiver", "Water level low: $totalWaterLevel ml vs $savedLevel ml")
@@ -35,7 +34,7 @@ class WaterLevelReceiver : BroadcastReceiver() {
 
     private fun sendNotification(context: Context, totalWaterLevel: Long, savedLevel: Long, difference: Long) {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.water_b__1_) // Use your actual drawable resource
+            .setSmallIcon(R.drawable.water_b__1_)
             .setContentTitle("Water Level Low")
             .setContentText("You're short by ${difference}ml. Total: $totalWaterLevel ml, Goal: $savedLevel ml.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -19,7 +19,7 @@ class SignUp : AppCompatActivity() {
         val emailEditText: EditText = findViewById(R.id.editTextTextEmailAddress)
         val passwordEditText: EditText = findViewById(R.id.editTextNumberPassword)
 
-        // Store user details in SharedPreferences
+
         storeUserDetail.setOnClickListener {
             val username = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
@@ -28,14 +28,14 @@ class SignUp : AppCompatActivity() {
                 val sharedPreferences = getSharedPreferences("UserDetails", Context.MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
 
-                // Save username and password
+
                 editor.putString("Username", username)
                 editor.putString("Password", password)
                 editor.apply()
 
                 Toast.makeText(this, "User SignUp Successfully", Toast.LENGTH_SHORT).show()
 
-                // Optionally, navigate to another activity after saving
+
                 val intent = Intent(this, LoginPage::class.java)
                 startActivity(intent)
             } else {
@@ -43,7 +43,7 @@ class SignUp : AppCompatActivity() {
             }
         }
 
-        // Navigate to login page when loginButton is clicked
+
         loginButton.setOnClickListener {
             val intent = Intent(this, LoginPage::class.java)
             startActivity(intent)
