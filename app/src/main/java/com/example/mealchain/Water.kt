@@ -234,6 +234,7 @@ class Water : AppCompatActivity() {
         progressBar.progress = progressPercentage.toInt()
     }
 
+    //Method to checking goal --09
     private fun checkGoalCompletion(totalWaterLevel: Long) {
         val waterPreferences = getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
         val savedLevel = waterPreferences.getLong("waterLevel", 0L)
@@ -262,7 +263,7 @@ class Water : AppCompatActivity() {
     //Method to send Notification --08
     private fun sendNotification() {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.water_b__1_)
             .setContentTitle("Water Goal Reached!")
             .setContentText("Congratulations! You have reached your water intake goal for the day.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
