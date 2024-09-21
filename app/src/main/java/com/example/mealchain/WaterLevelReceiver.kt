@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
@@ -31,6 +30,9 @@ class WaterLevelReceiver : BroadcastReceiver() {
         } else {
             Log.d("WaterLevelReceiver", "Water level is sufficient or goal not set.")
         }
+
+        // Send a water reminder notification
+        sendWaterReminderNotification(context)
     }
 
     private fun sendNotification(context: Context, totalWaterLevel: Long, savedLevel: Long, difference: Long) {
@@ -42,6 +44,18 @@ class WaterLevelReceiver : BroadcastReceiver() {
 
         with(NotificationManagerCompat.from(context)) {
             notify(NOTIFICATION_ID, builder.build())
+        }
+    }
+
+    private fun sendWaterReminderNotification(context: Context) {
+        val reminderBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.water_b__1_) // Use your actual drawable resource
+            .setContentTitle("Water Reminder")
+            .setContentText("It's time to drink water! Stay hydrated.")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        with(NotificationManagerCompat.from(context)) {
+            notify(NOTIFICATION_ID + 1, reminderBuilder.build()) // Unique ID for reminder notification
         }
     }
 }

@@ -71,6 +71,9 @@ class Water : AppCompatActivity() {
 
         // Schedule water level check every 2 hours
         scheduleWaterLevelCheck()
+
+        // Schedule the water reminder alarm
+        scheduleWaterReminderAlarm()
     }
 
     // Method to save the selected water level in SharedPreferences
@@ -105,35 +108,31 @@ class Water : AppCompatActivity() {
         Log.d("Water", "All shared preferences data cleared")
     }
 
-    // Other existing methods (scheduleWaterLevelCheck, handleLayoutClick, etc.)
-    // ...
-
-    private fun scheduleWaterLevelCheck() {
+    private fun scheduleWaterReminderAlarm() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, WaterLevelReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // Set repeating alarm to check water level every 2 hours
+        // Set the alarm to repeat every 2 hours
+        val triggerTime = System.currentTimeMillis() + CHECK_INTERVAL
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis(),
+            triggerTime,
             CHECK_INTERVAL,
             pendingIntent
         )
+        Log.d("Water", "Water reminder alarm scheduled")
     }
 
     private fun handleLayoutClick(layout: ConstraintLayout) {
-        // Retrieve the saved water level from SharedPreferences
         val waterPreferences = getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
-        val savedLevel = waterPreferences.getLong("waterLevel", 0L) // Default to 0 if not set
+        val savedLevel = waterPreferences.getLong("waterLevel", 0L)
 
-        // If the saved water level is 0, show a toast and return early
         if (savedLevel == 0L) {
             Toast.makeText(this, "First you need to add a water goal", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Determine which layout was clicked and extract its water level
         val waterLevelTextView: TextView = when (layout.id) {
             R.id.constraintLayoutWater1 -> findViewById(R.id.newWater1)
             R.id.constraintLayoutWater2 -> findViewById(R.id.newWater2)
@@ -144,13 +143,10 @@ class Water : AppCompatActivity() {
         }
 
         val waterLevelValue = extractWaterLevel(waterLevelTextView.text.toString())
-
-        // Retrieve the current total water level from SharedPreferences
         val totalPreferences = getSharedPreferences("TotalPreferences", Context.MODE_PRIVATE)
         val currentTotal = totalPreferences.getLong("totalWaterLevel", 0L)
         val newTotal = currentTotal + waterLevelValue
 
-        // Save the updated total water level back to SharedPreferences
         val totalEditor = totalPreferences.edit()
         totalEditor.putLong("totalWaterLevel", newTotal)
         val isTotalSaved = totalEditor.commit()
@@ -158,22 +154,12 @@ class Water : AppCompatActivity() {
         Log.d("Water", "Total water level updated: $newTotal ml. Save successful: $isTotalSaved")
         Toast.makeText(this, "Total water level updated: $newTotal ml", Toast.LENGTH_SHORT).show()
 
-        // Update the display and ProgressBar
         updateWaterLevelDisplay()
-
-        // Check if the user has reached their water goal
         checkGoalCompletion(newTotal)
     }
 
-
     private fun extractWaterLevel(waterLevelText: String): Long {
-        return try {
-            val valueString = waterLevelText.replace("ml", "").replace("L", "").trim()
-            valueString.toLong()
-        } catch (e: NumberFormatException) {
-            Log.e("Water", "Error parsing water level: $waterLevelText", e)
-            0L
-        }
+        return waterLevelText.replace("ml", "").trim().toLongOrNull() ?: 0L
     }
 
     private fun updateWaterLevelDisplay() {
@@ -200,37 +186,40 @@ class Water : AppCompatActivity() {
 
     private fun checkGoalCompletion(totalWaterLevel: Long) {
         val waterPreferences = getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
-        val savedLevel = waterPreferences.getLong("waterLevel", -1L)
+        val savedLevel = waterPreferences.getLong("waterLevel", 0L)
 
-        if (savedLevel != -1L && totalWaterLevel >= savedLevel) {
-            sendNotification()
+        if (totalWaterLevel >= savedLevel) {
+            Log.d("Water", "Water goal achieved!")
+            Toast.makeText(this, "Congratulations! You reached your water goal!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun scheduleWaterLevelCheck() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, WaterLevelReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        // Set repeating alarm every 2 hours
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            System.currentTimeMillis() + CHECK_INTERVAL,
+            CHECK_INTERVAL,
+            pendingIntent
+        )
+        Log.d("Water", "Water level check scheduled")
     }
 
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val name = "Water Level Channel"
-            val descriptionText = "Channel for water level notifications"
+            val descriptionText = "Notifications for water levels"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
 
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun sendNotification() {
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.water_b__1_)
-            .setContentTitle("You Reached Your Water Level Goal")
-            .setContentText("Congratulations!!!")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-        with(NotificationManagerCompat.from(this)) {
-            notify(NOTIFICATION_ID, builder.build())
         }
     }
 }
