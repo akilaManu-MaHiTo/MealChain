@@ -71,6 +71,11 @@ class Water : AppCompatActivity() {
 
         // Schedule water level check every 2 hours
         scheduleWaterLevelCheck()
+
+        // Display the upcoming task
+        val upcomingTaskTextView: TextView = findViewById(R.id.Upcoming)
+        val upcomingTask = calculateUpcomingTask()
+        upcomingTaskTextView.text = upcomingTask
     }
 
     // Method to save the selected water level in SharedPreferences
@@ -87,6 +92,11 @@ class Water : AppCompatActivity() {
 
         // Update the display and ProgressBar
         updateWaterLevelDisplay()
+
+        // Update the upcoming task
+        val upcomingTaskTextView: TextView = findViewById(R.id.Upcoming)
+        val upcomingTask = calculateUpcomingTask()
+        upcomingTaskTextView.text = upcomingTask
     }
 
     // Method to clear all SharedPreferences data
@@ -103,6 +113,37 @@ class Water : AppCompatActivity() {
 
         Toast.makeText(this, "All data cleared", Toast.LENGTH_SHORT).show()
         Log.d("Water", "All shared preferences data cleared")
+
+        // Update the upcoming task
+        val upcomingTaskTextView: TextView = findViewById(R.id.Upcoming)
+        upcomingTaskTextView.text = "Please set a water goal"
+    }
+
+    private fun calculateUpcomingTask(): String {
+        val totalPreferences = getSharedPreferences("TotalPreferences", Context.MODE_PRIVATE)
+        val totalWaterLevel = totalPreferences.getLong("totalWaterLevel", 0L)
+
+        val waterPreferences = getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
+        val savedLevel = waterPreferences.getLong("waterLevel", 0L)
+
+        if (savedLevel == 0L) return "Please set a water goal"
+
+        // Calculate how much is left to drink
+        val remainingWater = savedLevel - totalWaterLevel
+        if (remainingWater <= 0L) return "You have completed your water goal!"
+
+        val remainingWaterInLiters = remainingWater / 1000.0
+        // Calculate next intake time (e.g., drink every 2 hours)
+        val nextIntakeTime = System.currentTimeMillis() + CHECK_INTERVAL // Example: CHECK_INTERVAL = 2 hours in milliseconds
+
+        // Format the upcoming task details
+        val upcomingTask = "Remain Water Intake: %.2fL\nNext Intake Time: %s".format(
+            remainingWaterInLiters,
+            java.text.SimpleDateFormat("hh:mm a").format(nextIntakeTime)
+        )
+
+
+        return upcomingTask
     }
 
     // Other existing methods (scheduleWaterLevelCheck, handleLayoutClick, etc.)
@@ -163,8 +204,12 @@ class Water : AppCompatActivity() {
 
         // Check if the user has reached their water goal
         checkGoalCompletion(newTotal)
-    }
 
+        // Update the upcoming task
+        val upcomingTaskTextView: TextView = findViewById(R.id.Upcoming)
+        val upcomingTask = calculateUpcomingTask()
+        upcomingTaskTextView.text = upcomingTask
+    }
 
     private fun extractWaterLevel(waterLevelText: String): Long {
         return try {
@@ -200,9 +245,10 @@ class Water : AppCompatActivity() {
 
     private fun checkGoalCompletion(totalWaterLevel: Long) {
         val waterPreferences = getSharedPreferences("WaterPreferences", Context.MODE_PRIVATE)
-        val savedLevel = waterPreferences.getLong("waterLevel", -1L)
+        val savedLevel = waterPreferences.getLong("waterLevel", 0L)
 
-        if (savedLevel != -1L && totalWaterLevel >= savedLevel) {
+        if (totalWaterLevel >= savedLevel) {
+            Toast.makeText(this, "Congratulations! You have reached your water goal.", Toast.LENGTH_LONG).show()
             sendNotification()
         }
     }
@@ -210,23 +256,22 @@ class Water : AppCompatActivity() {
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val name = "Water Level Channel"
-            val descriptionText = "Channel for water level notifications"
+            val descriptionText = "Notifications for water level"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
 
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
     private fun sendNotification() {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.water_b__1_)
-            .setContentTitle("You Reached Your Water Level Goal")
-            .setContentText("Congratulations!!!")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("Water Goal Reached!")
+            .setContentText("Congratulations! You have reached your water intake goal for the day.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         with(NotificationManagerCompat.from(this)) {
